@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,7 +35,10 @@ private val PhotoResIds: List<Int> = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopScreen(modifier: Modifier = Modifier) {
+fun TopScreen(
+    onPhotoClick: (resId: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { TopAppBar(title = { Text("Photos") }) },
@@ -53,7 +57,8 @@ fun TopScreen(modifier: Modifier = Modifier) {
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1f),
+                        .aspectRatio(1f)
+                        .clickable { onPhotoClick(resId) },
                     contentScale = ContentScale.Crop,
                 )
             }

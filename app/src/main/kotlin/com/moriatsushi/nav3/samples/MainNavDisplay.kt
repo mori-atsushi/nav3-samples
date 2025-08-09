@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.moriatsushi.nav3.samples.nav.Route
+import com.moriatsushi.nav3.samples.photodetail.PhotoDetailScreen
 import com.moriatsushi.nav3.samples.top.TopScreen
 
 @Composable
@@ -19,7 +20,17 @@ fun MainNavDisplay(modifier: Modifier = Modifier) {
         onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
             entry<Route.Top> {
-                TopScreen()
+                TopScreen(
+                    onPhotoClick = { resId ->
+                        backStack.add(Route.PhotoDetail(resId))
+                    },
+                )
+            }
+            entry<Route.PhotoDetail> { entry ->
+                PhotoDetailScreen(
+                    resId = entry.resId,
+                    onBack = { backStack.removeLastOrNull() },
+                )
             }
         },
     )
