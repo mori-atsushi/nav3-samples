@@ -1,37 +1,34 @@
 package com.moriatsushi.nav3.samples
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.moriatsushi.nav3.samples.nav.NavTransitions
 import com.moriatsushi.nav3.samples.nav.Route
-import com.moriatsushi.nav3.samples.photodetail.PhotoDetailScreen
-import com.moriatsushi.nav3.samples.top.TopScreen
+import com.moriatsushi.nav3.samples.nav.entries
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MainNavDisplay(modifier: Modifier = Modifier) {
-    val backStack = remember { mutableStateListOf<Any>(Route.Top) }
-    NavDisplay(
-        modifier = modifier,
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = entryProvider {
-            entry<Route.Top> {
-                TopScreen(
-                    onPhotoClick = { resId ->
-                        backStack.add(Route.PhotoDetail(resId))
-                    },
+    val backStack = remember { mutableStateListOf<Route>(Route.Top) }
+
+    SharedTransitionLayout(modifier = modifier) {
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            transitionSpec = { NavTransitions.fadeInOut },
+            popTransitionSpec = { NavTransitions.fadeInOut },
+            entryProvider = entryProvider {
+                entries(
+                    backStack = backStack,
+                    sharedTransitionScope = this@SharedTransitionLayout,
                 )
-            }
-            entry<Route.PhotoDetail> { entry ->
-                PhotoDetailScreen(
-                    resId = entry.resId,
-                    onBack = { backStack.removeLastOrNull() },
-                )
-            }
-        },
-    )
+            },
+        )
+    }
 }

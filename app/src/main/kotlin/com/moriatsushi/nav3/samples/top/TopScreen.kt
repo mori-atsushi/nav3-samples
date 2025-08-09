@@ -1,5 +1,10 @@
 package com.moriatsushi.nav3.samples.top
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,10 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moriatsushi.nav3.samples.R
+import com.moriatsushi.nav3.samples.nav.NavTransitions
 
 private val PhotoResIds: List<Int> = listOf(
     R.drawable.photo_1,
@@ -33,10 +40,12 @@ private val PhotoResIds: List<Int> = listOf(
     R.drawable.photo_10,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun TopScreen(
     onPhotoClick: (resId: Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -52,15 +61,24 @@ fun TopScreen(
             contentPadding = contentPadding,
         ) {
             items(PhotoResIds) { resId ->
-                Image(
-                    painter = painterResource(id = resId),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clickable { onPhotoClick(resId) },
-                    contentScale = ContentScale.Crop,
-                )
+                with(sharedTransitionScope) {
+                    Image(
+                        painter = painterResource(id = resId),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .sharedBounds(
+                                rememberSharedContentState(key = resId),
+                                animatedVisibilityScope,
+                                boundsTransform = BoundsTransform { _, _ ->
+                                    NavTransitions.animationSpec(Rect.VisibilityThreshold)
+                                },
+                            )
+                            .clickable { onPhotoClick(resId) },
+                        contentScale = ContentScale.Crop,
+                    )
+                }
             }
         }
     }
