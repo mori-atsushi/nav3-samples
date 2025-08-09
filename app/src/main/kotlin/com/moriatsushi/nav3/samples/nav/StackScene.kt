@@ -2,6 +2,8 @@ package com.moriatsushi.nav3.samples.nav
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -10,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
+
+private const val OVERLAY_ENTER_TRANSITION_KEY = "overlay_enter_transition"
+private const val OVERLAY_EXIT_TRANSITION_KEY = "overlay_exit_transition"
 
 data class StackScene<T : Any>(
     override val key: Any,
@@ -29,10 +34,15 @@ data class StackScene<T : Any>(
 
         baseEntry.Content()
 
+        val enter =
+            overlapEntry?.metadata[OVERLAY_ENTER_TRANSITION_KEY] as? EnterTransition ?: fadeIn()
+        val exit =
+            overlapEntry?.metadata[OVERLAY_EXIT_TRANSITION_KEY] as? ExitTransition ?: fadeOut()
+
         overlayEntryTransition.AnimatedVisibility(
             visible = { it != null },
-            enter = fadeIn(),
-            exit = fadeOut(),
+            enter = enter,
+            exit = exit,
         ) {
             overlapEntry?.Content()
         }
@@ -67,6 +77,13 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
 
         private val NavEntry<*>.isOverlay: Boolean get() = metadata[OVERLAY_KEY] == true
 
-        fun overlay(): Map<String, Any> = mapOf(OVERLAY_KEY to true)
+        fun overlay(
+            enter: EnterTransition = fadeIn(),
+            exit: ExitTransition = fadeOut(),
+        ): Map<String, Any> = mapOf(
+            OVERLAY_KEY to true,
+            OVERLAY_ENTER_TRANSITION_KEY to enter,
+            OVERLAY_EXIT_TRANSITION_KEY to exit,
+        )
     }
 }
