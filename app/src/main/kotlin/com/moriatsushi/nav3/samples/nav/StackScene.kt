@@ -1,5 +1,11 @@
 package com.moriatsushi.nav3.samples.nav
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
@@ -8,15 +14,28 @@ import androidx.navigation3.ui.SceneStrategy
 data class StackScene<T : Any>(
     override val key: Any,
     private val baseEntry: NavEntry<T>,
-    private val overlayEntry: NavEntry<T>?,
+    private val overlayEntryTransition: Transition<NavEntry<T>?>,
     override val previousEntries: List<NavEntry<T>>,
+    private val onBack: (Int) -> Unit,
 ) : Scene<T> {
-    override val entries: List<NavEntry<T>> =
-        listOfNotNull(baseEntry, overlayEntry)
+    private val overlapEntry: NavEntry<T>?
+        get() = overlayEntryTransition.currentState ?: overlayEntryTransition.targetState
+
+    override val entries: List<NavEntry<T>>
+        get() = listOfNotNull(baseEntry, overlapEntry)
 
     override val content: @Composable () -> Unit = {
+        BackHandler(overlayEntryTransition.currentState != null) { onBack(1) }
+
         baseEntry.Content()
-        overlayEntry?.Content()
+
+        overlayEntryTransition.AnimatedVisibility(
+            visible = { it != null },
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            overlapEntry?.Content()
+        }
     }
 }
 
@@ -27,24 +46,27 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
         onBack: (Int) -> Unit,
     ): Scene<T>? {
         val remainingEntries = entries.toMutableList()
-        val overlayEntry =
-            if (remainingEntries.lastOrNull()?.metadata?.containsKey(OVERLAY_KEY) == true) {
-                remainingEntries.removeLastOrNull()
-            } else {
-                null
-            }
+        val overlayEntry = if (remainingEntries.lastOrNull()?.isOverlay == true) {
+            remainingEntries.removeLastOrNull()
+        } else {
+            null
+        }
+        val overlayEntryTransition = updateTransition(overlayEntry)
         val baseEntry = remainingEntries.removeLastOrNull() ?: return null
         return StackScene(
             key = baseEntry.contentKey,
             baseEntry = baseEntry,
-            overlayEntry = overlayEntry,
+            overlayEntryTransition = overlayEntryTransition,
             previousEntries = remainingEntries,
+            onBack = onBack,
         )
     }
 
     companion object {
-        fun overlay(): Map<String, Any> = mapOf(OVERLAY_KEY to true)
+        private const val OVERLAY_KEY = "overlay"
 
-        internal const val OVERLAY_KEY = "overlay"
+        private val NavEntry<*>.isOverlay: Boolean get() = metadata[OVERLAY_KEY] == true
+
+        fun overlay(): Map<String, Any> = mapOf(OVERLAY_KEY to true)
     }
 }
