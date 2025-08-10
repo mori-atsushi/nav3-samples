@@ -27,6 +27,9 @@ class PhotoDraggableState(
         scope.launch { offsetYAnim.snapTo(newValue) }
     }
 
+    val progress: Float
+        get() = (offsetYAnim.value / dismissThresholdPx).coerceIn(0f, 1f)
+
     fun onDragStopped(velocity: Float) {
         val shouldDismiss =
             offsetYAnim.value > dismissThresholdPx || velocity > velocityThresholdPx
