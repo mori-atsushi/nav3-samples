@@ -2,7 +2,6 @@ package com.moriatsushi.nav3.samples.top
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.VisibilityThreshold
@@ -96,10 +95,10 @@ private fun ImageCell(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .sharedBounds(
+                    .sharedElement(
                         rememberSharedContentState(key = resId),
                         this@AnimatedVisibility,
-                        boundsTransform = BoundsTransform { _, _ ->
+                        boundsTransform =  { _, _ ->
                             NavTransitions.animationSpec(Rect.VisibilityThreshold)
                         },
                     )
