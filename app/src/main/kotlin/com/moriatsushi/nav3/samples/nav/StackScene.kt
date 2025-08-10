@@ -2,6 +2,7 @@ package com.moriatsushi.nav3.samples.nav
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Transition
@@ -9,9 +10,13 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
+import java.lang.IllegalStateException
 
 private const val OVERLAY_ENTER_TRANSITION_KEY = "overlay_enter_transition"
 private const val OVERLAY_EXIT_TRANSITION_KEY = "overlay_exit_transition"
@@ -44,7 +49,9 @@ data class StackScene<T : Any>(
             enter = enter,
             exit = exit,
         ) {
-            overlapEntry?.Content()
+            CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                overlapEntry?.Content()
+            }
         }
     }
 }
@@ -87,3 +94,13 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
         )
     }
 }
+
+val LocalNavAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope> =
+    compositionLocalOf {
+        throw IllegalStateException(
+            "Unexpected access to LocalNavAnimatedVisibilityScope. You should only " +
+                "access LocalNavAnimatedVisibilityScope inside a NavEntry with " +
+                "StackSceneStrategy.overlay() metadata.",
+        )
+    }
+

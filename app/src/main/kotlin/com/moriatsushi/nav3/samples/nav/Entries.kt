@@ -4,8 +4,6 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.navigation3.runtime.EntryProviderBuilder
 import androidx.navigation3.runtime.entry
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
-import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import com.moriatsushi.nav3.samples.photodetail.PhotoDetailScreen
 import com.moriatsushi.nav3.samples.top.TopScreen
 
@@ -20,17 +18,20 @@ fun EntryProviderBuilder<Route>.entries(
                 backStack.add(Route.PhotoDetail(resId))
             },
             sharedTransitionScope = sharedTransitionScope,
-            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+            photoDetailPage = backStack.lastOrNull() as? Route.PhotoDetail,
         )
     }
     entry<Route.PhotoDetail>(
-        metadata = predictivePopTransitionSpec { NavTransitions.fadeInOut },
+        metadata = StackSceneStrategy.overlay(
+            enter = NavTransitions.fadeIn,
+            exit = NavTransitions.fadeOut,
+        ),
     ) { entry ->
         PhotoDetailScreen(
             resId = entry.resId,
             onBack = { backStack.removeLastOrNull() },
             sharedTransitionScope = sharedTransitionScope,
-            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+            animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
         )
     }
 }

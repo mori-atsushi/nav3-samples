@@ -1,6 +1,7 @@
 package com.moriatsushi.nav3.samples.top
 
-import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moriatsushi.nav3.samples.R
 import com.moriatsushi.nav3.samples.nav.NavTransitions
+import com.moriatsushi.nav3.samples.nav.Route
 
 private val PhotoResIds: List<Int> = listOf(
     R.drawable.photo_1,
@@ -44,8 +46,8 @@ private val PhotoResIds: List<Int> = listOf(
 @Composable
 fun TopScreen(
     onPhotoClick: (resId: Int) -> Unit,
+    photoDetailPage: Route.PhotoDetail?,
     sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -61,25 +63,49 @@ fun TopScreen(
             contentPadding = contentPadding,
         ) {
             items(PhotoResIds) { resId ->
-                with(sharedTransitionScope) {
-                    Image(
-                        painter = painterResource(id = resId),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .sharedBounds(
-                                rememberSharedContentState(key = resId),
-                                animatedVisibilityScope,
-                                boundsTransform = BoundsTransform { _, _ ->
-                                    NavTransitions.animationSpec(Rect.VisibilityThreshold)
-                                },
-                            )
-                            .clickable { onPhotoClick(resId) },
-                        contentScale = ContentScale.Crop,
-                    )
-                }
+                ImageCell(
+                    resId = resId,
+                    sharedTransitionScope = sharedTransitionScope,
+                    photoDetailPage = photoDetailPage,
+                    onPhotoClick = onPhotoClick,
+                )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun ImageCell(
+    @DrawableRes resId: Int,
+    sharedTransitionScope: SharedTransitionScope,
+    photoDetailPage: Route.PhotoDetail?,
+    onPhotoClick: (resId: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = photoDetailPage?.resId != resId,
+        enter = NavTransitions.fadeIn,
+        exit = NavTransitions.fadeOut,
+    ) {
+        with(sharedTransitionScope) {
+            Image(
+                painter = painterResource(id = resId),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .sharedBounds(
+                        rememberSharedContentState(key = resId),
+                        this@AnimatedVisibility,
+                        boundsTransform = BoundsTransform { _, _ ->
+                            NavTransitions.animationSpec(Rect.VisibilityThreshold)
+                        },
+                    )
+                    .clickable { onPhotoClick(resId) },
+                contentScale = ContentScale.Crop,
+            )
         }
     }
 }
