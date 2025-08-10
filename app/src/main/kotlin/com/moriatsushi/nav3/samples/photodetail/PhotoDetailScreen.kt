@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
@@ -40,16 +41,23 @@ fun PhotoDetailScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
+    val photoDraggableState = rememberPhotoDraggableState(onBack = onBack)
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = Color.Black,
-        topBar = { PhotoTopBar(onBack) },
+        containerColor = Color.Black.copy(alpha = 1f - (0.75f * photoDraggableState.progress)),
+        topBar = {
+            PhotoTopBar(
+                modifier = modifier.graphicsLayer { alpha = 1f - photoDraggableState.progress },
+                onBack = onBack,
+            )
+        },
     ) { contentPadding ->
         with(sharedTransitionScope) {
             PhotoDetailScreenContent(
                 modifier = Modifier.padding(contentPadding),
                 resId = resId,
-                onBack = onBack,
+                photoDraggableState = photoDraggableState,
                 animatedVisibilityScope = animatedVisibilityScope,
                 sharedTransitionScope = sharedTransitionScope,
             )
@@ -59,11 +67,12 @@ fun PhotoDetailScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PhotoTopBar(onBack: () -> Unit) {
+private fun PhotoTopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
     TopAppBar(
+        modifier = modifier,
         title = {},
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Black,
+            containerColor = Color.Transparent,
             navigationIconContentColor = Color.White,
         ),
         navigationIcon = {
@@ -81,13 +90,11 @@ private fun PhotoTopBar(onBack: () -> Unit) {
 @Composable
 private fun PhotoDetailScreenContent(
     @DrawableRes resId: Int,
-    onBack: () -> Unit,
+    photoDraggableState: PhotoDraggableState,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    val photoDraggableState = rememberPhotoDraggableState(onBack = onBack)
-
     with(sharedTransitionScope) {
         Image(
             painter = painterResource(id = resId),

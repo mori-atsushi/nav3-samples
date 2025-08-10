@@ -10,6 +10,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.moriatsushi.nav3.samples.nav.NavTransitions
 import com.moriatsushi.nav3.samples.nav.Route
+import com.moriatsushi.nav3.samples.nav.StackSceneStrategy
 import com.moriatsushi.nav3.samples.nav.entries
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -20,7 +21,8 @@ fun MainNavDisplay(modifier: Modifier = Modifier) {
     SharedTransitionLayout(modifier = modifier) {
         NavDisplay(
             backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
+            onBack = { repeat(it) { backStack.removeLastOrNull() } },
+            sceneStrategy = StackSceneStrategy(),
             transitionSpec = { NavTransitions.fadeInOut },
             popTransitionSpec = { NavTransitions.fadeInOut },
             entryProvider = entryProvider {
