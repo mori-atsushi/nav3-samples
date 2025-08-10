@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +34,9 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
+import androidx.navigationevent.compose.NavigationEventHandler
 import com.moriatsushi.nav3.samples.nav.NavTransitions
+import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -45,14 +48,25 @@ fun PhotoDetailScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    val photoDraggableState = rememberPhotoDraggableState(onBack = onBack)
+    val photoLayoutState = rememberPhotoLayoutState(onBack = onBack)
+
+    NavigationEventHandler({ true }) { navEvent ->
+        try {
+            navEvent.collect { event ->
+                photoLayoutState.onNavigationProgress(event)
+            }
+            photoLayoutState.onNavigationBack()
+        } catch (_: CancellationException) {
+            photoLayoutState.onNavigationCancel()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = Color.Black.copy(alpha = 1f - (0.75f * photoDraggableState.progress)),
+        containerColor = Color.Black.copy(alpha = 1f - (0.75f * photoLayoutState.dismissProgress)),
         topBar = {
             PhotoTopBar(
-                modifier = modifier.graphicsLayer { alpha = 1f - photoDraggableState.progress },
+                modifier = modifier.graphicsLayer { alpha = 1f - photoLayoutState.dismissProgress },
                 onBack = onBack,
             )
         },
@@ -61,7 +75,7 @@ fun PhotoDetailScreen(
             PhotoDetailScreenContent(
                 modifier = Modifier.padding(contentPadding),
                 resId = resId,
-                photoDraggableState = photoDraggableState,
+                photoLayoutState = photoLayoutState,
                 animatedVisibilityScope = animatedVisibilityScope,
                 sharedTransitionScope = sharedTransitionScope,
             )
@@ -94,7 +108,7 @@ private fun PhotoTopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun PhotoDetailScreenContent(
     @DrawableRes resId: Int,
-    photoDraggableState: PhotoDraggableState,
+    photoLayoutState: PhotoLayoutState,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
@@ -103,11 +117,13 @@ private fun PhotoDetailScreenContent(
         modifier = modifier
             .fillMaxSize()
             .draggable(
-                state = rememberDraggableState { delta -> photoDraggableState.onDrag(delta) },
+                state = rememberDraggableState { delta -> photoLayoutState.onDrag(delta) },
                 orientation = Orientation.Vertical,
-                onDragStopped = { velocity -> photoDraggableState.onDragStopped(velocity) },
+                onDragStopped = { velocity -> photoLayoutState.onDragStopped(velocity) },
             )
-            .offset { IntOffset(0, photoDraggableState.offsetY.roundToInt()) },
+            .offset { IntOffset(0, photoLayoutState.offsetY.roundToInt()) }
+            .wrapContentSize()
+            .fillMaxSize(photoLayoutState.scale),
         contentAlignment = Alignment.Center,
     ) {
         with(sharedTransitionScope) {
