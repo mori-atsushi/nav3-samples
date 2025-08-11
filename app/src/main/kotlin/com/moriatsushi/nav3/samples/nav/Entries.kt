@@ -18,7 +18,7 @@ fun EntryProviderBuilder<Route>.entries(
                 backStack.add(Route.PhotoDetail(resId))
             },
             sharedTransitionScope = sharedTransitionScope,
-            photoDetailPage = backStack.lastOrNull() as? Route.PhotoDetail,
+            photoDetailPage = backStack.getOrNull(1) as? Route.PhotoDetail,
         )
     }
     entry<Route.PhotoDetail>(

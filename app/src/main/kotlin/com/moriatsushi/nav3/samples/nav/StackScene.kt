@@ -5,14 +5,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
@@ -68,12 +70,16 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
         } else {
             null
         }
-        val overlayEntryTransition = updateTransition(overlayEntry)
         val baseEntry = remainingEntries.removeLastOrNull() ?: return null
+        val transitionState = remember(baseEntry.contentKey) {
+            MutableTransitionState(overlayEntry)
+        }
+        transitionState.targetState = overlayEntry
+        val transition = rememberTransition(transitionState)
         return StackScene(
             key = baseEntry.contentKey,
             baseEntry = baseEntry,
-            overlayEntryTransition = overlayEntryTransition,
+            overlayEntryTransition = transition,
             previousEntries = remainingEntries,
             onBack = onBack,
         )
