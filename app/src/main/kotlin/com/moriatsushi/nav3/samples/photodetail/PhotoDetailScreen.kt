@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +46,7 @@ import kotlin.math.roundToInt
 fun PhotoDetailScreen(
     @DrawableRes resId: Int,
     onBack: () -> Unit,
+    onInfoClick: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
@@ -71,6 +73,7 @@ fun PhotoDetailScreen(
             PhotoTopBar(
                 modifier = modifier.graphicsLayer { alpha = 1f - photoLayoutState.dismissProgress },
                 onBack = onBack,
+                onInfoClick = onInfoClick,
             )
         },
     ) { contentPadding ->
@@ -88,13 +91,18 @@ fun PhotoDetailScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PhotoTopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun PhotoTopBar(
+    onBack: () -> Unit,
+    onInfoClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     TopAppBar(
         modifier = modifier,
         title = {},
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
             navigationIconContentColor = Color.White,
+            actionIconContentColor = Color.White,
         ),
         navigationIcon = {
             IconButton(onClick = onBack) {
@@ -104,6 +112,14 @@ private fun PhotoTopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 )
             }
         },
+        actions = {
+            IconButton(onClick = onInfoClick) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "Info",
+                )
+            }
+        }
     )
 }
 

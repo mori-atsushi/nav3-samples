@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.moriatsushi.nav3.samples.nav.BottomSheetModalSceneStrategy
 import com.moriatsushi.nav3.samples.nav.NavTransitions
 import com.moriatsushi.nav3.samples.nav.Route
 import com.moriatsushi.nav3.samples.nav.StackSceneStrategy
@@ -22,7 +23,10 @@ fun MainNavDisplay(modifier: Modifier = Modifier) {
         NavDisplay(
             backStack = backStack,
             onBack = { repeat(it) { backStack.removeLastOrNull() } },
-            sceneStrategy = StackSceneStrategy(),
+            sceneStrategy = remember {
+                BottomSheetModalSceneStrategy<Route>()
+                    .then(StackSceneStrategy())
+            },
             transitionSpec = { NavTransitions.fadeInOut },
             popTransitionSpec = { NavTransitions.fadeInOut },
             entryProvider = entryProvider {
