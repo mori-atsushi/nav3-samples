@@ -1,17 +1,19 @@
 package com.moriatsushi.nav3.samples.system
 
+import android.view.Window
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 
 @Composable
-fun StatusBarAppearance(isLight: Boolean) {
-    val activity = LocalActivity.current ?: return
-
+fun StatusBarAppearance(
+    isLight: Boolean,
+    window: Window = findWindow(),
+) {
     LifecycleResumeEffect(Unit) {
         val windowInsetsController =
-            WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+            WindowInsetsControllerCompat(window, window.decorView)
         val previousAppearance = windowInsetsController.isAppearanceLightStatusBars
         windowInsetsController.isAppearanceLightStatusBars = isLight
         onPauseOrDispose {
@@ -19,3 +21,7 @@ fun StatusBarAppearance(isLight: Boolean) {
         }
     }
 }
+
+@Composable
+private fun findWindow(): Window =
+    LocalActivity.current?.window ?: error("No activity found")

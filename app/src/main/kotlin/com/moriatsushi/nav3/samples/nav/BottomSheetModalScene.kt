@@ -4,10 +4,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.OverlayScene
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
+import com.moriatsushi.nav3.samples.system.StatusBarAppearance
 
 @OptIn(ExperimentalMaterial3Api::class)
 class BottomSheetModalScene<T : Any>(
@@ -22,6 +25,10 @@ class BottomSheetModalScene<T : Any>(
 
     override val content: @Composable (() -> Unit) = {
         ModalBottomSheet(onDismissRequest = { onBack(1) }, properties = properties) {
+            val window = (LocalView.current.parent as? DialogWindowProvider)?.window
+            if (window != null) {
+                StatusBarAppearance(isLight = false, window = window)
+            }
             entry.Content()
         }
     }
