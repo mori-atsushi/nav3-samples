@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
 import androidx.navigationevent.compose.NavigationEventHandler
 import com.moriatsushi.nav3.samples.nav.NavTransitions
+import com.moriatsushi.nav3.samples.system.StatusBarAppearance
 import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
 
@@ -48,6 +49,8 @@ fun PhotoDetailScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
+    StatusBarAppearance(isLight = false)
+
     val photoLayoutState = rememberPhotoLayoutState(onBack = onBack)
 
     NavigationEventHandler({ true }) { navEvent ->
