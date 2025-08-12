@@ -82,7 +82,7 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
         val overlayCount = overlayEntries.size
         val baseEntry = entries.getOrNull(entries.lastIndex - overlayCount) ?: return null
         val remainingEntries = entries.dropLast(overlayCount + 1)
-        val overlayEntriesState = remember { OverlayEntriesState<T>() }
+        val overlayEntriesState = remember { OverlayEntriesState(overlayEntries) }
         overlayEntriesState.update(overlayEntries)
         return StackScene(
             key = baseEntry.contentKey,
@@ -109,8 +109,11 @@ class StackSceneStrategy<T : Any> : SceneStrategy<T> {
     }
 }
 
-class OverlayEntriesState<T : Any> {
-    private val _transitionStateMap = mutableMapOf<Any, MutableTransitionState<NavEntry<T>?>>()
+class OverlayEntriesState<T : Any>(initialEntries: List<NavEntry<T>>) {
+    private val _transitionStateMap: MutableMap<Any, MutableTransitionState<NavEntry<T>?>> =
+        initialEntries
+            .associate { it.contentKey to MutableTransitionState<NavEntry<T>?>(it) }
+            .toMutableMap()
     val transitionStateMap: Map<Any, MutableTransitionState<NavEntry<T>?>> = _transitionStateMap
 
     val entries: List<NavEntry<T>>
