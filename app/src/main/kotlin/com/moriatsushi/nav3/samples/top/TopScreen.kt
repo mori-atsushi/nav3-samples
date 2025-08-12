@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,9 +45,10 @@ private val PhotoResIds: List<Int> = listOf(
 @Composable
 fun TopScreen(
     onPhotoClick: (resId: Int) -> Unit,
-    photoDetailPage: Route.PhotoDetail?,
+    onPhotoLongClick: (resId: Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     modifier: Modifier = Modifier,
+    @DrawableRes selectedPhoto: Int? = null,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -65,8 +66,9 @@ fun TopScreen(
                 ImageCell(
                     resId = resId,
                     sharedTransitionScope = sharedTransitionScope,
-                    photoDetailPage = photoDetailPage,
-                    onPhotoClick = onPhotoClick,
+                    visible = selectedPhoto != resId,
+                    onClick = { onPhotoClick(resId) },
+                    onLongClick = { onPhotoLongClick(resId) },
                 )
             }
         }
@@ -78,13 +80,14 @@ fun TopScreen(
 private fun ImageCell(
     @DrawableRes resId: Int,
     sharedTransitionScope: SharedTransitionScope,
-    photoDetailPage: Route.PhotoDetail?,
-    onPhotoClick: (resId: Int) -> Unit,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
+    visible: Boolean = true,
 ) {
     AnimatedVisibility(
         modifier = modifier,
-        visible = photoDetailPage?.resId != resId,
+        visible = visible,
         enter = NavTransitions.fadeIn,
         exit = NavTransitions.fadeOut,
     ) {
@@ -98,11 +101,14 @@ private fun ImageCell(
                     .sharedElement(
                         rememberSharedContentState(key = resId),
                         this@AnimatedVisibility,
-                        boundsTransform =  { _, _ ->
+                        boundsTransform = { _, _ ->
                             NavTransitions.animationSpec(Rect.VisibilityThreshold)
                         },
                     )
-                    .clickable { onPhotoClick(resId) },
+                    .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    ),
                 contentScale = ContentScale.Crop,
             )
         }

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
 import androidx.navigationevent.compose.NavigationEventHandler
+import com.moriatsushi.nav3.samples.component.Photo
 import com.moriatsushi.nav3.samples.nav.NavTransitions
 import com.moriatsushi.nav3.samples.system.StatusBarAppearance
 import kotlinx.coroutines.CancellationException
@@ -145,49 +146,10 @@ private fun PhotoDetailScreenContent(
             .fillMaxSize(photoLayoutState.scale),
         contentAlignment = Alignment.Center,
     ) {
-        with(sharedTransitionScope) {
-            val painter = painterResource(id = resId)
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    // Shared element transitions do not support animating `ContentScale`.
-                    // So we lay out the image with a custom modifier.
-                    .contentScaleFit(painter.intrinsicSize)
-                    .sharedElement(
-                        rememberSharedContentState(key = resId),
-                        animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            NavTransitions.animationSpec(Rect.VisibilityThreshold)
-                        },
-                    ),
-                contentScale = ContentScale.Crop, // Use crop for shared bounds
-            )
-        }
+        Photo(
+            resId = resId,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
+        )
     }
 }
-
-/**
- * Layouts the child at the largest size that fits within the given constraints
- * while preserving aspect ratio — equivalent to [ContentScale.Fit].
- */
-private fun Modifier.contentScaleFit(intrinsicSize: Size): Modifier =
-    layout { measurable, constraints ->
-        val dstSize = Size(
-            constraints.maxWidth.toFloat(),
-            constraints.maxHeight.toFloat(),
-        )
-        val scale = ContentScale.Fit.computeScaleFactor(intrinsicSize, dstSize)
-
-        val targetWidth = (intrinsicSize.width * scale.scaleX).roundToInt()
-            .coerceIn(constraints.minWidth, constraints.maxWidth)
-        val targetHeight = (intrinsicSize.height * scale.scaleY).roundToInt()
-            .coerceIn(constraints.minHeight, constraints.maxHeight)
-
-        val placeable = measurable.measure(
-            Constraints.fixed(targetWidth, targetHeight),
-        )
-        layout(targetWidth, targetHeight) {
-            placeable.place(0, 0)
-        }
-    }
