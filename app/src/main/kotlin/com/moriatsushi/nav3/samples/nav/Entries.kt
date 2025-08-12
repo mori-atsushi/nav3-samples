@@ -12,24 +12,19 @@ import com.moriatsushi.nav3.samples.top.TopScreen
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 fun EntryProviderBuilder<Route>.entries(
-    backStack: MutableList<Route>,
+    backStack: BackStack,
     sharedTransitionScope: SharedTransitionScope,
 ) {
     entry<Route.Top> {
-        val selectedPhoto = when (val entry = backStack.getOrNull(1)) {
-            is Route.PhotoPreview -> entry.resId
-            is Route.PhotoDetail -> entry.resId
-            else -> null
-        }
         TopScreen(
             onPhotoClick = { resId ->
-                backStack.add(Route.PhotoDetail(resId))
+                backStack.navigateTo(Route.PhotoDetail(resId))
             },
             onPhotoLongClick = { resId ->
-                backStack.add(Route.PhotoPreview(resId))
+                backStack.navigateTo(Route.PhotoPreview(resId))
             },
             sharedTransitionScope = sharedTransitionScope,
-            selectedPhoto = selectedPhoto,
+            selectedPhoto = backStack.selectedPhoto,
         )
     }
     entry<Route.PhotoPreview>(
@@ -40,7 +35,7 @@ fun EntryProviderBuilder<Route>.entries(
     ) { entry ->
         PhotoPreviewScreen(
             resId = entry.resId,
-            onBack = { backStack.removeLastOrNull() },
+            onBack = { backStack.back() },
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
         )
@@ -53,8 +48,8 @@ fun EntryProviderBuilder<Route>.entries(
     ) { entry ->
         PhotoDetailScreen(
             resId = entry.resId,
-            onBack = { backStack.removeLastOrNull() },
-            onInfoClick = { backStack.add(Route.PhotoInfo) },
+            onBack = { backStack.back() },
+            onInfoClick = { backStack.navigateTo(Route.PhotoInfo) },
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
         )
