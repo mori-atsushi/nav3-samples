@@ -1,7 +1,9 @@
 package com.moriatsushi.nav3.samples.photopreview
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -13,13 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import com.moriatsushi.nav3.samples.component.Photo
 
+@ExperimentalSharedTransitionApi
 @Composable
 fun PhotoPreviewScreen(
     @DrawableRes resId: Int,
     onBack: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -34,11 +38,10 @@ fun PhotoPreviewScreen(
             .fillMaxSize(0.8f),
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = painterResource(id = resId),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit,
+        Photo(
+            resId = resId,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
         )
     }
 }

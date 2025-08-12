@@ -46,9 +46,9 @@ private val PhotoResIds: List<Int> = listOf(
 fun TopScreen(
     onPhotoClick: (resId: Int) -> Unit,
     onPhotoLongClick: (resId: Int) -> Unit,
-    photoDetailPage: Route.PhotoDetail?,
     sharedTransitionScope: SharedTransitionScope,
     modifier: Modifier = Modifier,
+    @DrawableRes selectedPhoto: Int? = null,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -66,7 +66,7 @@ fun TopScreen(
                 ImageCell(
                     resId = resId,
                     sharedTransitionScope = sharedTransitionScope,
-                    photoDetailPage = photoDetailPage,
+                    visible = selectedPhoto != resId,
                     onClick = { onPhotoClick(resId) },
                     onLongClick = { onPhotoLongClick(resId) },
                 )
@@ -80,14 +80,14 @@ fun TopScreen(
 private fun ImageCell(
     @DrawableRes resId: Int,
     sharedTransitionScope: SharedTransitionScope,
-    photoDetailPage: Route.PhotoDetail?,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
+    visible: Boolean = true,
 ) {
     AnimatedVisibility(
         modifier = modifier,
-        visible = photoDetailPage?.resId != resId,
+        visible = visible,
         enter = NavTransitions.fadeIn,
         exit = NavTransitions.fadeOut,
     ) {

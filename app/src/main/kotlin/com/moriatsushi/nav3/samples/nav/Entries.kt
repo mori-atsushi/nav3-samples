@@ -16,6 +16,11 @@ fun EntryProviderBuilder<Route>.entries(
     sharedTransitionScope: SharedTransitionScope,
 ) {
     entry<Route.Top> {
+        val selectedPhoto = when (val entry = backStack.getOrNull(1)) {
+            is Route.PhotoPreview -> entry.resId
+            is Route.PhotoDetail -> entry.resId
+            else -> null
+        }
         TopScreen(
             onPhotoClick = { resId ->
                 backStack.add(Route.PhotoDetail(resId))
@@ -24,7 +29,7 @@ fun EntryProviderBuilder<Route>.entries(
                 backStack.add(Route.PhotoPreview(resId))
             },
             sharedTransitionScope = sharedTransitionScope,
-            photoDetailPage = backStack.getOrNull(1) as? Route.PhotoDetail,
+            selectedPhoto = selectedPhoto,
         )
     }
     entry<Route.PhotoPreview>(
@@ -36,6 +41,8 @@ fun EntryProviderBuilder<Route>.entries(
         PhotoPreviewScreen(
             resId = entry.resId,
             onBack = { backStack.removeLastOrNull() },
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
         )
     }
     entry<Route.PhotoDetail>(
