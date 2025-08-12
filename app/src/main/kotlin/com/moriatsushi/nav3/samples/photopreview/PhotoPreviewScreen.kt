@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import com.moriatsushi.nav3.samples.component.Photo
 @Composable
 fun PhotoPreviewScreen(
     @DrawableRes resId: Int,
+    onPhotoClick: () -> Unit,
     onBack: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -39,6 +41,7 @@ fun PhotoPreviewScreen(
         contentAlignment = Alignment.Center,
     ) {
         Photo(
+            modifier = Modifier.clickable(onClick = onPhotoClick),
             resId = resId,
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = animatedVisibilityScope,

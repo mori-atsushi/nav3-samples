@@ -36,6 +36,10 @@ fun EntryProviderBuilder<Route>.entries(
         PhotoPreviewScreen(
             resId = entry.resId,
             onBack = { backStack.back() },
+            onPhotoClick = {
+                backStack.back()
+                backStack.navigateTo(Route.PhotoDetail(entry.resId))
+            },
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
         )
