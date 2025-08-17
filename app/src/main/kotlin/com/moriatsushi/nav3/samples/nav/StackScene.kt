@@ -40,11 +40,17 @@ data class StackScene<T : Any>(
     override val content: @Composable () -> Unit = {
         BackHandler(!overlayEntries.isEmpty()) { onBack(1) }
 
-        baseEntry.Content()
+        // Safe cast: T extends Any, so T is compatible with wildcard type
+        @Suppress("UNCHECKED_CAST")
+        CompositionLocalProvider(
+            LocalOverlayTransition provides overlayTransition as Transition<List<NavEntry<*>>>,
+        ) {
+            baseEntry.Content()
 
-        for (entry in overlayEntries) {
-            key(entry.contentKey) {
-                AnimatedOverlay(entry)
+            for (entry in overlayEntries) {
+                key(entry.contentKey) {
+                    AnimatedOverlay(entry)
+                }
             }
         }
     }
@@ -114,3 +120,11 @@ val LocalNavAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibili
         )
     }
 
+val LocalOverlayTransition: ProvidableCompositionLocal<Transition<List<NavEntry<*>>>> =
+    compositionLocalOf {
+        throw IllegalStateException(
+            "Unexpected access to LocalOverlayTransition. You should only " +
+                "access LocalOverlayTransition inside a NavEntry with " +
+                "StackSceneStrategy.overlay() metadata.",
+        )
+    }
