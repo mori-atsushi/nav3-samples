@@ -31,7 +31,7 @@ fun EntryProviderBuilder<Route>.entries(
         metadata = StackSceneStrategy.overlay(
             enter = NavTransitions.fadeIn,
             exit = NavTransitions.fadeOut,
-        ),
+        ) + OverlayType.metadata(OverlayType.FLOATING),
     ) { entry ->
         PhotoPreviewScreen(
             resId = entry.resId,
@@ -48,7 +48,7 @@ fun EntryProviderBuilder<Route>.entries(
         metadata = StackSceneStrategy.overlay(
             enter = NavTransitions.fadeIn,
             exit = NavTransitions.fadeOut,
-        ),
+        ) + OverlayType.metadata(OverlayType.FULLSCREEN),
     ) { entry ->
         PhotoDetailScreen(
             resId = entry.resId,
