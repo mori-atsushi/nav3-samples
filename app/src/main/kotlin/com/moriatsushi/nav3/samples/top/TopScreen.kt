@@ -20,13 +20,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.moriatsushi.nav3.samples.R
+import com.moriatsushi.nav3.samples.nav.LocalOverlayTransition
 import com.moriatsushi.nav3.samples.nav.NavTransitions
-import com.moriatsushi.nav3.samples.nav.Route
+import com.moriatsushi.nav3.samples.nav.OverlayType
 
 private val PhotoResIds: List<Int> = listOf(
     R.drawable.photo_1,
@@ -50,8 +53,11 @@ fun TopScreen(
     modifier: Modifier = Modifier,
     @DrawableRes selectedPhoto: Int? = null,
 ) {
+    val blurRadius = blurRadius()
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .blur(blurRadius)
+            .fillMaxSize(),
         topBar = { TopAppBar(title = { Text("Photos") }) },
     ) { contentPadding ->
         LazyVerticalGrid(
@@ -72,6 +78,23 @@ fun TopScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun blurRadius(): Dp {
+    val overlayTransition = LocalOverlayTransition.current
+    val initialOverlayType =
+        overlayTransition.currentState.lastOrNull()?.metadata?.let { OverlayType.fromMetadata(it) }
+    val targetOverlayType =
+        overlayTransition.targetState.lastOrNull()?.metadata?.let { OverlayType.fromMetadata(it) }
+
+    return when {
+        targetOverlayType == OverlayType.FLOATING -> 10.dp
+        initialOverlayType == OverlayType.FLOATING &&
+            targetOverlayType == OverlayType.FULLSCREEN -> 10.dp
+
+        else -> 0.dp
     }
 }
 
