@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.moriatsushi.nav3.samples.component.Photo
+import com.moriatsushi.nav3.samples.system.StatusBarAppearance
 
 @ExperimentalSharedTransitionApi
 @Composable
@@ -28,6 +29,8 @@ fun PhotoPreviewScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
+    StatusBarAppearance(isLight = false)
+
     Box(
         modifier = modifier
             .fillMaxSize()

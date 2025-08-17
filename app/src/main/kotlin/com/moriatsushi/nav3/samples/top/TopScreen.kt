@@ -30,6 +30,7 @@ import com.moriatsushi.nav3.samples.R
 import com.moriatsushi.nav3.samples.nav.LocalOverlayTransition
 import com.moriatsushi.nav3.samples.nav.NavTransitions
 import com.moriatsushi.nav3.samples.nav.OverlayType
+import com.moriatsushi.nav3.samples.system.StatusBarAppearance
 
 private val PhotoResIds: List<Int> = listOf(
     R.drawable.photo_1,
@@ -53,6 +54,8 @@ fun TopScreen(
     modifier: Modifier = Modifier,
     @DrawableRes selectedPhoto: Int? = null,
 ) {
+    StatusBarAppearance(isLight = true)
+
     val blurRadius = blurRadius()
     Scaffold(
         modifier = modifier
